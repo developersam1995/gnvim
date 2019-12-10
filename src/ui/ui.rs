@@ -967,12 +967,22 @@ fn handle_redraw_event(
                     let anchor_metrics = anchor_grid.get_grid_metrics();
                     let grid_metrics = grid.get_grid_metrics();
 
-                    let x =
-                        x_offset + anchor_metrics.cell_width * evt.anchor_col;
-                    let y =
-                        y_offset + anchor_metrics.cell_height * evt.anchor_row;
                     let width = grid_metrics.cols * grid_metrics.cell_width;
                     let height = grid_metrics.rows * grid_metrics.cell_height;
+
+                    let x = if evt.anchor.is_west() {
+                        x_offset + anchor_metrics.cell_width * evt.anchor_col
+                    } else {
+                        x_offset + anchor_metrics.cell_width * evt.anchor_col
+                            - width
+                    };
+
+                    let y = if evt.anchor.is_north() {
+                        y_offset + anchor_metrics.cell_height * evt.anchor_row
+                    } else {
+                        y_offset + anchor_metrics.cell_height * evt.anchor_row
+                            - height
+                    };
 
                     window.set_position(x, y, width, height);
                     window.show();

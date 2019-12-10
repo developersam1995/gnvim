@@ -767,10 +767,47 @@ impl From<Value> for WindowPos {
 }
 
 #[derive(Debug, PartialEq)]
+pub enum Anchor {
+    NW,
+    NE,
+    SW,
+    SE,
+}
+
+impl Anchor {
+    pub fn is_west(&self) -> bool {
+        match self {
+            Self::NW | Self::SW => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_north(&self) -> bool {
+        match self {
+            Self::NW | Self::NE => true,
+            _ => false,
+        }
+    }
+}
+
+impl From<Value> for Anchor {
+    fn from(args: Value) -> Self {
+        let args = unwrap_str!(args);
+        match args {
+            "NW" => Self::NW,
+            "NE" => Self::NE,
+            "SW" => Self::SW,
+            "SE" => Self::SE,
+            _ => Self::NW,
+        }
+    }
+}
+
+#[derive(Debug, PartialEq)]
 pub struct WindowFloatPos {
     pub grid: i64,
     pub win: NvimWindow,
-    pub anchor: String,
+    pub anchor: Anchor,
     pub anchor_grid: i64,
     pub anchor_row: u64,
     pub anchor_col: u64,
@@ -783,7 +820,7 @@ impl From<Value> for WindowFloatPos {
         Self {
             grid: unwrap_i64!(args[0]),
             win: NvimWindow::new(args[1].clone()),
-            anchor: unwrap_str!(args[2]).to_string(),
+            anchor: Anchor::from(args[2].clone()),
             anchor_grid: unwrap_i64!(args[3]),
             anchor_row: unwrap_f64!(args[4]) as u64,
             anchor_col: unwrap_f64!(args[5]) as u64,
