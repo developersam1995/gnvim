@@ -10,10 +10,12 @@ pub struct MsgWindow {
 }
 
 impl MsgWindow {
-    pub fn new(fixed: gtk::Fixed) -> Self {
+    pub fn new(fixed: gtk::Fixed, css_provider: gtk::CssProvider) -> Self {
         let frame = gtk::Frame::new(None);
 
         fixed.put(&frame, 0, 0);
+
+        add_css_provider!(&css_provider, frame);
 
         Self { fixed, frame }
     }
@@ -59,12 +61,21 @@ pub struct Window {
 }
 
 impl Window {
-    pub fn new(win: NvimWindow, fixed: gtk::Fixed, grid: &Grid) -> Self {
+    pub fn new(
+        win: NvimWindow,
+        fixed: gtk::Fixed,
+        grid: &Grid,
+        css_provider: Option<gtk::CssProvider>,
+    ) -> Self {
         let frame = gtk::Frame::new(None);
         fixed.put(&frame, 0, 0);
 
         let widget = grid.widget();
         frame.add(&widget);
+
+        if let Some(css_provider) = css_provider {
+            add_css_provider!(&css_provider, frame);
+        }
 
         Self {
             fixed,

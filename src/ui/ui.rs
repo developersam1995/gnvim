@@ -181,10 +181,12 @@ impl UI {
             "Message grid contianer",
         );
         overlay.add_overlay(&windows_container);
-        overlay.add_overlay(&windows_float_container);
         overlay.add_overlay(&msg_window_container);
+        overlay.add_overlay(&windows_float_container);
 
-        let msg_window = MsgWindow::new(msg_window_container.clone());
+        let css_provider = gtk::CssProvider::new();
+        let msg_window =
+            MsgWindow::new(msg_window_container.clone(), css_provider.clone());
 
         overlay.set_overlay_pass_through(&windows_container, true);
         overlay.set_overlay_pass_through(&windows_float_container, true);
@@ -290,7 +292,6 @@ impl UI {
         let mut grids = HashMap::new();
         grids.insert(1, grid);
 
-        let css_provider = gtk::CssProvider::new();
         add_css_provider!(&css_provider, window);
 
         UI {
@@ -650,7 +651,11 @@ fn handle_redraw_event(
                         format!(
                             "* {{
                             background: #{bg};
-                        }}",
+                            }}
+
+                            frame > border {{
+                                border: none;
+                            }}",
                             bg = bg.to_hex()
                         )
                         .as_bytes(),
@@ -903,12 +908,14 @@ fn handle_redraw_event(
                     let windows_container = state.windows_container.clone();
 
                     let grid = state.grids.get(&evt.grid).unwrap();
+                    let css_provider = state.css_provider.clone();
                     let window =
                         state.windows.entry(evt.grid).or_insert_with(|| {
                             Window::new(
                                 evt.win.clone(),
                                 windows_container,
                                 &grid,
+                                Some(css_provider),
                             )
                         });
 
@@ -943,6 +950,7 @@ fn handle_redraw_event(
                     let grid = state.grids.get(&evt.grid).unwrap();
                     let windows_float_container =
                         state.windows_float_container.clone();
+                    let css_provider = state.css_provider.clone();
                     let window =
                         state.windows.entry(evt.grid).or_insert_with(|| {
                             println!("Create new float window");
@@ -950,6 +958,7 @@ fn handle_redraw_event(
                                 evt.win.clone(),
                                 windows_float_container,
                                 &grid,
+                                Some(css_provider),
                             )
                         });
 
@@ -972,6 +981,7 @@ fn handle_redraw_event(
             RedrawEvent::WindowExternalPos(evt) => {
                 evt.iter().for_each(|evt| {
                     let parent_win = window.clone().upcast::<gtk::Window>();
+                    let css_provider = state.css_provider.clone();
                     let grid = state.grids.get(&evt.grid).unwrap();
                     let windows_float_container =
                         state.windows_float_container.clone();
@@ -982,6 +992,7 @@ fn handle_redraw_event(
                                 evt.win.clone(),
                                 windows_float_container,
                                 &grid,
+                                Some(css_provider),
                             )
                         });
 
