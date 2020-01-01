@@ -165,6 +165,7 @@ impl UI {
             line_space,
             80,
             30,
+            &hl_defs,
         );
         overlay.add(&grid.widget());
 
@@ -570,7 +571,7 @@ fn handle_redraw_event(
                      }| {
                         let win = window.get_window().unwrap();
                         if let Some(grid) = state.grids.get(id) {
-                            grid.resize(&win, *width, *height);
+                            grid.resize(&win, *width, *height, &state.hl_defs);
                         } else {
                             let grid = Grid::new(
                                 *id,
@@ -579,12 +580,13 @@ fn handle_redraw_event(
                                 state.line_space,
                                 *width as usize,
                                 *height as usize,
+                                &state.hl_defs,
                             );
 
                             if let Some(ref mode) = state.current_mode {
                                 grid.set_mode(&mode);
                             }
-                            grid.resize(&win, *width, *height);
+                            grid.resize(&win, *width, *height, &state.hl_defs);
                             attach_grid_events(&grid, nvim.clone());
                             state.grids.insert(*id, grid);
                         }
@@ -599,7 +601,6 @@ fn handle_redraw_event(
             }
             RedrawEvent::GridDestroy(evt) => {
                 evt.iter().for_each(|grid| {
-                    println!("DROP GRID {}", grid);
                     // TODO(ville): Make sure all grid resources are freed.
                     state.grids.remove(grid).unwrap(); // Drop grid.
 
@@ -929,7 +930,7 @@ fn handle_redraw_event(
                     window.set_position(x, y, width, height);
                     window.show();
 
-                    grid.resize(&win, evt.width, evt.height);
+                    grid.resize(&win, evt.width, evt.height, &state.hl_defs);
                 });
             }
             RedrawEvent::WindowFloatPos(evt) => {
@@ -953,7 +954,6 @@ fn handle_redraw_event(
                     let css_provider = state.css_provider.clone();
                     let window =
                         state.windows.entry(evt.grid).or_insert_with(|| {
-                            println!("Create new float window");
                             Window::new(
                                 evt.win.clone(),
                                 windows_float_container,
@@ -997,7 +997,6 @@ fn handle_redraw_event(
                         state.windows_float_container.clone();
                     let window =
                         state.windows.entry(evt.grid).or_insert_with(|| {
-                            println!("Create new float window");
                             Window::new(
                                 evt.win.clone(),
                                 windows_float_container,

@@ -80,10 +80,11 @@ impl Grid {
         line_space: i64,
         cols: usize,
         rows: usize,
+        hl_defs: &HlDefs,
     ) -> Self {
         let da = DrawingArea::new();
         let ctx = Rc::new(RefCell::new(Some(Context::new(
-            &da, win, font, line_space, cols, rows,
+            &da, win, font, line_space, cols, rows, hl_defs,
         ))));
 
         da.connect_draw(clone!(ctx => move |_, cr| {
@@ -389,12 +390,25 @@ impl Grid {
         (cols, rows)
     }
 
-    pub fn resize(&self, win: &gdk::Window, width: u64, height: u64) {
+    pub fn resize(
+        &self,
+        win: &gdk::Window,
+        width: u64,
+        height: u64,
+        hl_defs: &HlDefs,
+    ) {
         let mut ctx = self.context.borrow_mut();
         let ctx = ctx.as_mut().unwrap();
 
         let width = width as usize;
         let height = height as usize;
+
+        let prev_height = ctx.rows.len();
+        let prev_width = if let Some(row) = ctx.rows.get(0) {
+            row.len()
+        } else {
+            0
+        };
 
         if ctx.rows.len() > height {
             ctx.rows.truncate(height);
@@ -403,7 +417,6 @@ impl Grid {
                 ctx.rows.push(Row::new(width));
             }
         }
-        println!("Resize {} {} {}", self.id, width, height);
 
         if ctx.rows.get(0).unwrap().len() < width {
             for row in ctx.rows.iter_mut() {
@@ -415,7 +428,15 @@ impl Grid {
             }
         }
 
-        ctx.update(&self.da, win, width, height);
+        ctx.update(
+            &self.da,
+            win,
+            width,
+            height,
+            hl_defs,
+            prev_width,
+            prev_height,
+        );
     }
 
     pub fn clear(&self, hl_defs: &HlDefs) {

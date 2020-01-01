@@ -8,6 +8,7 @@ use crate::ui::color::{Color, Highlight};
 use crate::ui::font::Font;
 use crate::ui::grid::render;
 use crate::ui::grid::row::Row;
+use crate::ui::ui::HlDefs;
 
 /// Context is manipulated by Grid.
 pub struct Context {
@@ -54,6 +55,7 @@ impl Context {
         line_space: i64,
         cols: usize,
         rows: usize,
+        hl_defs: &HlDefs,
     ) -> Self {
         let pango_context = da.get_pango_context().unwrap();
 
@@ -72,6 +74,16 @@ impl Context {
             .unwrap();
 
         let cairo_context = cairo::Context::new(&surface);
+
+        // Fill the context with default bg color.
+        cairo_context.save();
+        cairo_context.set_source_rgb(
+            hl_defs.default_bg.r,
+            hl_defs.default_bg.g,
+            hl_defs.default_bg.b,
+        );
+        cairo_context.paint();
+        cairo_context.restore();
 
         let cursor_context = {
             let surface = win
@@ -112,6 +124,9 @@ impl Context {
         win: &gdk::Window,
         cols: usize,
         rows: usize,
+        hl_defs: &HlDefs,
+        prev_cols: usize,
+        prev_rows: usize,
     ) {
         let pctx = da.get_pango_context().unwrap();
         pctx.set_font_description(&self.cell_metrics.font.as_pango_font());
@@ -125,11 +140,29 @@ impl Context {
             .unwrap();
         let ctx = cairo::Context::new(&surface);
 
+        // Fill the context with default bg color.
+        ctx.save();
+        ctx.set_source_rgb(
+            hl_defs.default_bg.r,
+            hl_defs.default_bg.g,
+            hl_defs.default_bg.b,
+        );
+        ctx.paint();
+        ctx.restore();
+
         let s = self.cairo_context.get_target();
         self.cairo_context.save();
         ctx.set_source_surface(&s, 0.0, 0.0);
         ctx.set_operator(cairo::Operator::Source);
-        ctx.paint();
+        // Make sure we only paint the area that _was_ visible before this update
+        // so we don't undo the bg color paint we did earlier.
+        ctx.rectangle(
+            0.0,
+            0.0,
+            self.cell_metrics.width * prev_cols as f64,
+            self.cell_metrics.height * prev_rows as f64,
+        );
+        ctx.fill();
         self.cairo_context.restore();
 
         self.cairo_context = ctx;
