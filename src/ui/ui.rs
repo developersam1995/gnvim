@@ -993,16 +993,20 @@ fn handle_redraw_event(
 
                     let mut new_size = (None, None);
 
-                    if grid_metrics.rows + y / base_metrics.cell_height > base_metrics.rows {
+                    if grid_metrics.rows + y / base_metrics.cell_height
+                        > base_metrics.rows
+                    {
                         let rows = base_metrics.rows
                             - y / base_metrics.cell_height
                             - 1;
                         new_size.1 = Some(rows);
                     }
 
-                    if grid_metrics.cols + x / base_metrics.cell_width > base_metrics.cols {
-                        let cols = base_metrics.cols
-                            - x / base_metrics.cell_width;
+                    if grid_metrics.cols + x / base_metrics.cell_width
+                        > base_metrics.cols
+                    {
+                        let cols =
+                            base_metrics.cols - x / base_metrics.cell_width;
                         new_size.0 = Some(cols);
                     }
 
@@ -1010,8 +1014,10 @@ fn handle_redraw_event(
                         let mut nvim = nvim.borrow_mut();
                         nvim.ui_try_resize_grid(
                             evt.grid,
-                            new_size.0.unwrap_or_else(|| grid_metrics.cols) as i64,
-                            new_size.1.unwrap_or_else(|| grid_metrics.rows) as i64,
+                            new_size.0.unwrap_or_else(|| grid_metrics.cols)
+                                as i64,
+                            new_size.1.unwrap_or_else(|| grid_metrics.rows)
+                                as i64,
                         )
                         .unwrap();
                     }
