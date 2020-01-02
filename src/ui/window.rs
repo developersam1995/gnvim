@@ -20,7 +20,16 @@ impl MsgWindow {
         Self { fixed, frame }
     }
 
-    pub fn set_pos(&self, grid: &Grid, row: u64) {
+    /// Set the position of the message window.
+    ///
+    /// * `grid` - The grid to set to the window.
+    /// * `row` - The row on the parent window where the message window should
+    ///           start. The position in pixels is calculated based on the `grid`.
+    /// * `h` - Height of the window. While we can calculate the position based
+    ///         on the `grid` and `row`, we can't calculate the height automatically.
+    ///         The height is mainly needed so we don't show any artifacts that
+    ///         will likely be visible on the `grid`'s drawingarea from earlier renders.
+    pub fn set_pos(&self, grid: &Grid, row: u64, h: i32) {
         let w = grid.widget();
 
         // Only add/change the child widget if its different
@@ -37,8 +46,7 @@ impl MsgWindow {
 
         let metrics = grid.get_grid_metrics();
         let w = metrics.cols * metrics.cell_width;
-        let h = metrics.rows * metrics.cell_height;
-        self.frame.set_size_request(w as i32, h as i32);
+        self.frame.set_size_request(w as i32, h);
 
         self.fixed
             .move_(&self.frame, 0, (metrics.cell_height * row) as i32);

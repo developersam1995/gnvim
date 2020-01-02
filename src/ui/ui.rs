@@ -1060,8 +1060,12 @@ fn handle_redraw_event(
             }
             RedrawEvent::MsgSetPos(evt) => {
                 evt.iter().for_each(|e| {
+                    let base_grid = state.grids.get(&1).unwrap();
+                    let base_metrics = base_grid.get_grid_metrics();
                     let grid = state.grids.get(&e.grid).unwrap();
-                    state.msg_window.set_pos(&grid, e.row);
+                    let h = base_metrics.rows * base_metrics.cell_height
+                        - e.row * base_metrics.cell_height;
+                    state.msg_window.set_pos(&grid, e.row, h as i32);
                 });
             }
             RedrawEvent::Ignored(_) => (),
