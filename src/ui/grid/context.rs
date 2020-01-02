@@ -2,7 +2,10 @@ use cairo;
 use gtk::DrawingArea;
 use pango;
 
+use gdk::prelude::*;
 use gtk::prelude::*;
+
+use log::warn;
 
 use crate::ui::color::{Color, Highlight};
 use crate::ui::font::Font;
@@ -69,9 +72,7 @@ impl Context {
 
         let w = cell_metrics.width as usize * cols;
         let h = cell_metrics.height as usize * rows;
-        let surface = win
-            .create_similar_surface(cairo::Content::Color, w as i32, h as i32)
-            .unwrap();
+        let surface = create_surface_clamp(win, w as i32, h as i32);
 
         let cairo_context = cairo::Context::new(&surface);
 
@@ -135,9 +136,7 @@ impl Context {
 
         let w = self.cell_metrics.width as usize * cols;
         let h = self.cell_metrics.height as usize * rows;
-        let surface = win
-            .create_similar_surface(cairo::Content::Color, w as i32, h as i32)
-            .unwrap();
+        let surface = create_surface_clamp(win, w as i32, h as i32);
         let ctx = cairo::Context::new(&surface);
 
         // Fill the context with default bg color.
@@ -259,4 +258,34 @@ impl CellMetrics {
         self.underline_thickness =
             fm.get_underline_thickness() as f64 / pango::SCALE as f64 * 2.0;
     }
+}
+
+/// Creates a new surface from `win`. Clamps width and height to the size of `win`.
+/// When clamping, warn level log messages are emitted.
+fn create_surface_clamp(win: &gdk::Window, w: i32, h: i32) -> cairo::Surface {
+    let max_height = win.get_height();
+    let max_width = win.get_width();
+
+    let width = if w > max_width {
+        warn!(
+            "Want to allocate surface with width {}, clamping to {}",
+            w, max_width
+        );
+        max_width
+    } else {
+        w
+    };
+
+    let height = if h > max_height {
+        warn!(
+            "Want to allocate surface with height {}, clamping to {}",
+            h, max_height
+        );
+        max_height
+    } else {
+        h
+    };
+
+    win.create_similar_surface(cairo::Content::Color, width, height)
+        .unwrap()
 }
