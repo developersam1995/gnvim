@@ -651,7 +651,7 @@ fn handle_redraw_event(
                         &state.css_provider,
                         format!(
                             "* {{
-                            background: #{bg};
+                                background: #{bg};
                             }}
 
                             frame > border {{
@@ -973,15 +973,19 @@ fn handle_redraw_event(
                     let x = if evt.anchor.is_west() {
                         x_offset + anchor_metrics.cell_width * evt.anchor_col
                     } else {
-                        x_offset + anchor_metrics.cell_width * evt.anchor_col
-                            - width
+                        (x_offset + anchor_metrics.cell_width * evt.anchor_col)
+                            .checked_sub(width)
+                            .or(Some(0))
+                            .unwrap()
                     };
 
                     let y = if evt.anchor.is_north() {
                         y_offset + anchor_metrics.cell_height * evt.anchor_row
                     } else {
-                        y_offset + anchor_metrics.cell_height * evt.anchor_row
-                            - height
+                        (y_offset + anchor_metrics.cell_height * evt.anchor_row)
+                            .checked_sub(height)
+                            .or(Some(0))
+                            .unwrap()
                     };
 
                     window.set_position(x, y, width, height);
