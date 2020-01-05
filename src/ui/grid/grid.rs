@@ -313,7 +313,11 @@ impl Grid {
 
     pub fn redraw(&self, hl_defs: &HlDefs) {
         let mut ctx = self.context.borrow_mut();
-        render::redraw(&mut ctx, &self.da.get_pango_context().unwrap(), hl_defs);
+        render::redraw(
+            &mut ctx,
+            &self.da.get_pango_context().unwrap(),
+            hl_defs,
+        );
     }
 
     pub fn cursor_goto(&self, row: u64, col: u64) {
