@@ -227,7 +227,8 @@ pub fn clear(da: &DrawingArea, ctx: &mut Context, hl_defs: &HlDefs) {
     cr.fill();
     cr.restore();
 
-    ctx.queue_draw_area.push((0.0, 0.0, f64::from(w), f64::from(h)));
+    ctx.queue_draw_area
+        .push((0.0, 0.0, f64::from(w), f64::from(h)));
 }
 
 /// Scrolls contents in `ctx.cairo_context` and `ctx.rows`, based on `reg`.
@@ -304,8 +305,7 @@ pub fn scroll(ctx: &mut Context, hl_defs: &HlDefs, reg: [u64; 4], count: i64) {
     cr.set_operator(cairo::Operator::Source);
     cr.rectangle(x1, y1, w, h);
     cr.fill();
-    ctx.queue_draw_area
-        .push((x1 , y1 , w , h ));
+    ctx.queue_draw_area.push((x1, y1, w, h));
 
     // Clear the area that is left "dirty".
     let (x1, y1, x2, y2) = get_rect(
@@ -321,8 +321,7 @@ pub fn scroll(ctx: &mut Context, hl_defs: &HlDefs, reg: [u64; 4], count: i64) {
     cr.rectangle(x1, y1, x2 - x1, y2 - y1);
     cr.set_source_rgb(bg.r, bg.g, bg.b);
     cr.fill();
-    ctx.queue_draw_area
-        .push((x1 , y1 , w , h ));
+    ctx.queue_draw_area.push((x1, y1, w, h));
 
     cr.restore();
 }

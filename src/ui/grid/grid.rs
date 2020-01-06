@@ -335,15 +335,23 @@ impl Grid {
 
         // Clear old cursor position.
         let (x, y, w, h) = ctx.get_cursor_rect();
-        ctx.queue_draw_area
-            .push((f64::from(x), f64::from(y), f64::from(w), f64::from(h)));
+        ctx.queue_draw_area.push((
+            f64::from(x),
+            f64::from(y),
+            f64::from(w),
+            f64::from(h),
+        ));
         ctx.cursor.0 = row;
         ctx.cursor.1 = col;
 
         // Mark the new cursor position to be drawn.
         let (x, y, w, h) = ctx.get_cursor_rect();
-        ctx.queue_draw_area
-            .push((f64::from(x), f64::from(y), f64::from(w), f64::from(h)));
+        ctx.queue_draw_area.push((
+            f64::from(x),
+            f64::from(y),
+            f64::from(w),
+            f64::from(h),
+        ));
 
         if let Some(ref im_context) = self.im_context {
             let rect = gdk::Rectangle {
@@ -452,8 +460,7 @@ impl Grid {
         // Don't use the ctx.queue_draw_area, because those draws will only
         // happen once nvim sends 'flush' event. This draw needs to happen
         // on each tick so the cursor blinks.
-        self.da
-            .queue_draw_area(x, y, w, h);
+        self.da.queue_draw_area(x, y, w, h);
     }
 
     /// Set a new font and line space. This will likely change the cell metrics.
