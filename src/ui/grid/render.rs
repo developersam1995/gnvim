@@ -85,8 +85,8 @@ fn render_text(
         cr.move_to(x + x_offset, y + cm.ascent);
         pangocairo::functions::show_glyph_string(&cr, &a.font(), &mut glyphs);
 
-        //x_offset += f64::from(item.num_chars()) * cm.width;
-        x_offset += f64::from(glyphs.get_width());
+        x_offset += f64::from(item.num_chars()) * cm.width;
+        //x_offset += f64::from(glyphs.get_width());
     }
 
     // Since we can't (for some reason) use pango attributes to draw

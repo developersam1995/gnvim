@@ -302,10 +302,10 @@ impl Grid {
             let ctx = ctx.borrow();
             let ctx = ctx.as_ref().unwrap();
 
-            let w = da.get_allocated_width();
-            let h = da.get_allocated_height();
-            let cols = (w / ctx.cell_metrics.width as i32) as u64;
-            let rows = (h / ctx.cell_metrics.height as i32) as u64;
+            let w = f64::from(da.get_allocated_width());
+            let h = f64::from(da.get_allocated_height());
+            let cols = (w / ctx.cell_metrics.width).floor() as u64;
+            let rows = (h / ctx.cell_metrics.height).floor() as u64;
 
             f(rows, cols)
         });
